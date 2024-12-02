@@ -1,0 +1,11 @@
+BEGIN;
+TRUNCATE TABLE departemen CASCADE;
+
+INSERT INTO departemen (id_dept, nama_dept) VALUES
+    ('HR', 'Human Resources'),
+    ('ENG', 'Engineering'),
+    ('DEV', 'Development'),
+    ('PM', 'Project Management'),
+    ('FIN', 'Finance');
+
+COMMIT;

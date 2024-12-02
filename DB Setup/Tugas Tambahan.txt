@@ -1,0 +1,101 @@
+--- TABLE CREATION ---
+CREATE TABLE IF NOT EXISTS public.jabatan
+(
+    id_jabatan integer NOT NULL DEFAULT nextval('jabatan_id_jabatan_seq'::regclass),
+    nama_jabatan character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    salary numeric(12, 2),
+    CONSTRAINT jabatan_pkey PRIMARY KEY (id_jabatan)
+);
+
+ALTER TABLE IF EXISTS public.karyawan
+    ADD CONSTRAINT id_jabatan_fk FOREIGN KEY (id_jabatan)
+    REFERENCES public.jabatan (id_jabatan) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+--- Populate Jabatan ---
+BEGIN;
+TRUNCATE TABLE jabatan CASCADE;
+
+INSERT INTO jabatan (nama_jabatan, salary) VALUES
+    ('Internship', 200000),
+    ('Junior', 1000000),
+    ('Senior', 3000000);
+COMMIT;
+
+
+--- SQL FUNCTIONS ---
+--- INSERT ----
+CREATE OR REPLACE FUNCTION add_jabatan(
+	_nama CHARACTER VARYING(50),
+	_salary NUMERIC(12, 2)
+)
+RETURNS int AS
+$$
+BEGIN
+	IF EXISTS (
+		SELECT 1 FROM jabatan
+		WHERE namajab = _nama AND salary = _salary
+	)
+	THEN RETURN 409;
+	ELSE
+		INSERT INTO jabatan(namajab, salary) 
+		VALUES (_nama, _salary);
+		RETURN 201;
+	END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+--- UPDATE ---
+CREATE OR REPLACE FUNCTION edit_jabatan(
+    _id_jabatan INTEGER,
+    _nama CHARACTER VARYING(50),
+    _salary NUMERIC(12, 2)
+)
+RETURNS int AS
+$$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM jabatan
+        WHERE id_jabatan = _id_jabatan
+    )
+    THEN 
+        UPDATE jabatan
+        SET namajab = _nama,
+            salary = _salary
+        WHERE id_jabatan = _id_jabatan;
+        RETURN 200;
+    ELSE
+        RETURN 404;
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+--- DELETE ---
+CREATE OR REPLACE FUNCTION delete_jabatan(
+    _id_jabatan INTEGER
+)
+RETURNS int AS
+$$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM jabatan
+        WHERE id_jabatan = _id_jabatan
+    )
+    THEN 
+        DELETE FROM jabatan
+        WHERE id_jabatan = _id_jabatan;
+        RETURN 200;
+    ELSE
+        RETURN 404;
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
+	

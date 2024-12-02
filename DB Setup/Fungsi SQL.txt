@@ -1,0 +1,71 @@
+--- INSERT --- 
+CREATE OR REPLACE FUNCTION add_karyawan(
+    _nama CHARACTER VARYING,
+    _id_dept CHARACTER VARYING
+)
+RETURNS int AS
+$$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM karyawan
+        WHERE nama_kar = _nama AND id_dept = _id_dept
+    )
+    THEN RETURN 409;
+    ELSE
+        INSERT INTO karyawan (nama_kar, id_dept)
+        VALUES (_nama, _id_dept);
+        RETURN 201;
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+--- UPDATE ---
+CREATE OR REPLACE FUNCTION edit_karyawan(
+    _id_kar CHARACTER VARYING,
+    _nama CHARACTER VARYING,
+    _id_dept CHARACTER VARYING
+)
+RETURNS int AS
+$$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM karyawan
+        WHERE id_kar = _id_kar
+    )
+    THEN 
+        UPDATE karyawan
+        SET nama_kar = _nama,
+            id_dept = _id_dept
+        WHERE id_kar = _id_kar;
+        RETURN 200;
+    ELSE
+        RETURN 404;
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+--- DELETE ---
+CREATE OR REPLACE FUNCTION delete_karyawan(
+    _id_karyawan CHARACTER VARYING
+)
+RETURNS int AS
+$$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM karyawan
+        WHERE id_kar = _id_karyawan
+    )
+    THEN 
+        DELETE FROM karyawan
+        WHERE id_kar = _id_karyawan;
+        RETURN 200;
+    ELSE
+        RETURN 404;
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
