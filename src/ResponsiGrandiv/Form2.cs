@@ -1,9 +1,9 @@
-using Npgsql;
+﻿using Npgsql;
 using System.Data;
 
 namespace ResponsiGrandiv
 {
-    public partial class Form1 : Form
+    public partial class Form2 : Form
     {
         string connString = "Host=localhost;Port=5432;Username=postgres;Password=informatika;Database=ResponsiGrandiv";
         NpgsqlConnection conn;
@@ -15,7 +15,7 @@ namespace ResponsiGrandiv
 
         public DataGridViewRow Row { get => row; set => row = value; }
 
-        public Form1()
+        public Form2()
         {
             InitializeComponent();
             LoadData();
@@ -28,24 +28,11 @@ namespace ResponsiGrandiv
             {
                 conn.Open();
 
-                sql = @"SELECT k.id_kar, k.nama_kar, k.id_dept, d.nama_dept 
-                       FROM karyawan k 
-                       JOIN departemen d ON k.id_dept = d.id_dept";
+                sql = @"SELECT id_jabatan, nama_jabatan, salary FROM jabatan";
                 cmd = new NpgsqlCommand(sql, conn);
                 dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
                 dgvDataTable.DataSource = dt;
-
-                sql = "SELECT id_dept, nama_dept FROM departemen";
-                cmd = new NpgsqlCommand(sql, conn);
-                using (NpgsqlDataReader reader = cmd.ExecuteReader())
-                {
-                    deptList.Items.Clear();
-                    while (reader.Read())
-                    {
-                        deptList.Items.Add(reader["id_dept"].ToString() + " - " + reader["nama_dept"].ToString());
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -59,49 +46,22 @@ namespace ResponsiGrandiv
 
         private void InsertData()
         {
-            string nama = namaKar_TB.Text;
-            string id_dept = "";
+            string namajab = jabatanTb.Text;
+            string salary = salaryTb.Text;
 
-            if (HR_RB.Checked)
+            if (namajab == "" || salary == "")
             {
-                id_dept = "HR";
-            }
-            else if (ENG_RB.Checked)
-            {
-                id_dept = "ENG";
-            }
-            else if (DEV_RB.Checked)
-            {
-                id_dept = "DEV";
-            }
-            else if (PM_RB.Checked)
-            {
-                id_dept = "PM";
-            }
-            else if (FIN_RB.Checked)
-            {
-                id_dept = "FIN";
-            }
-
-            if (id_dept == "")
-            {
-                MessageBox.Show("Pilih departemen terlebih dahulu");
-                return;
-            }
-
-            if (nama == "")
-            {
-                MessageBox.Show("Nama tidak boleh kosong");
+                MessageBox.Show("Nama atau salary tidak boleh kosong");
                 return;
             }
             try
             {
                 conn = new NpgsqlConnection(connString);
                 conn.Open();
-                sql = "SELECT * FROM add_karyawan(:_nama, :_id_dept)";
+                sql = "SELECT * FROM add_jabatan(:_nama, :_salary)";
                 cmd = new NpgsqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("_nama", nama);
-                cmd.Parameters.AddWithValue("_id_dept", id_dept);
+                cmd.Parameters.AddWithValue("_nama", namajab);
+                cmd.Parameters.AddWithValue("_salary", salary);
                 int statusCode = (int)cmd.ExecuteScalar();
                 if (statusCode == 201)
                 {
@@ -135,34 +95,22 @@ namespace ResponsiGrandiv
             }
             try
             {
-                string nama = namaKar_TB.Text;
-                string id_dept = "";
+                string namajab = jabatanTb.Text;
+                string salary = salaryTb.Text;
 
-                if (HR_RB.Checked) id_dept = "HR";
-                else if (ENG_RB.Checked) id_dept = "ENG";
-                else if (DEV_RB.Checked) id_dept = "DEV";
-                else if (PM_RB.Checked) id_dept = "PM";
-                else if (FIN_RB.Checked) id_dept = "FIN";
-
-                if (id_dept == "")
+                if (namajab == "" || salary == "")
                 {
-                    MessageBox.Show("Pilih departemen terlebih dahulu");
-                    return;
-                }
-
-                if (nama == "")
-                {
-                    MessageBox.Show("Nama tidak boleh kosong");
+                    MessageBox.Show("Nama atau salary tidak boleh kosong");
                     return;
                 }
 
                 conn = new NpgsqlConnection(connString);
                 conn.Open();
-                sql = "SELECT * FROM edit_karyawan(:_id_kar, :_nama, :_id_dept)";
+                sql = "SELECT * FROM edit_jabatan(:_id_jabatan, :_nama, :_salary)";
                 cmd = new NpgsqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("_id_kar", Row.Cells["id_kar"].Value.ToString());
-                cmd.Parameters.AddWithValue("_nama", nama);
-                cmd.Parameters.AddWithValue("_id_dept", id_dept);
+                cmd.Parameters.AddWithValue("_id_jabatan", Row.Cells["id_jabatan"].Value.ToString());
+                cmd.Parameters.AddWithValue("_nama", namajab);
+                cmd.Parameters.AddWithValue("_salary", salary);
 
                 int statusCode = (int)cmd.ExecuteScalar();
 
@@ -174,7 +122,7 @@ namespace ResponsiGrandiv
                 }
                 if (statusCode == 404)
                 {
-                    throw new Exception(nama + " tidak ditemukan");
+                    throw new Exception(namajab + " tidak ditemukan");
                 }
             }
             catch (Exception ex)
@@ -188,7 +136,7 @@ namespace ResponsiGrandiv
         {
             if (Row == null)
             {
-                MessageBox.Show("Pilih karyawan untuk dihapus");
+                MessageBox.Show("Pilih jabatan untuk dihapus");
                 return;
             }
             try
@@ -202,9 +150,9 @@ namespace ResponsiGrandiv
                 {
                     conn = new NpgsqlConnection(connString);
                     conn.Open();
-                    sql = "SELECT * FROM delete_karyawan(:_id_karyawan)";
+                    sql = "SELECT * FROM delete_jabatan(:_id_jabatan)";
                     cmd = new NpgsqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("_id_karyawan", Row.Cells["id_kar"].Value.ToString());
+                    cmd.Parameters.AddWithValue("_id_jabatan", Row.Cells["id_jabatan"].Value.ToString());
 
                     int statusCode = (int)cmd.ExecuteScalar();
 
@@ -254,27 +202,8 @@ namespace ResponsiGrandiv
             if (e.RowIndex >= 0)
             {
                 Row = dgvDataTable.Rows[e.RowIndex];
-                karTerpilih_dynamicLb.Text = Row.Cells["id_kar"].Value.ToString();
-                namaKar_TB.Text = Row.Cells["nama_kar"].Value.ToString();
-                string id_dept = Row.Cells["id_dept"].Value.ToString();
-
-                switch (id_dept)
-                {
-                    case "HR": HR_RB.Checked = true; break;
-                    case "ENG": ENG_RB.Checked = true; break;
-                    case "DEV": DEV_RB.Checked = true; break;
-                    case "PM": PM_RB.Checked = true; break;
-                    case "FIN": FIN_RB.Checked = true; break;
-                    default: throw new Exception("An error occurred");
-                }
+                jabatanTb.Text = Row.Cells["nama_jab"].Value.ToString();
             }
-        }
-
-        private void jabatanBt_Click(object sender, EventArgs e)
-        {
-            Form2 form2 = new Form2();
-            form2.Show();
-            this.Hide();
         }
     }
 }

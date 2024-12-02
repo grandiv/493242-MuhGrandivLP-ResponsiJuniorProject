@@ -44,6 +44,7 @@
             dgvDataTable = new DataGridView();
             karTerpilih_lb = new Label();
             karTerpilih_dynamicLb = new Label();
+            jabatanBt = new Button();
             ((System.ComponentModel.ISupportInitialize)logoPB).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvDataTable).BeginInit();
             SuspendLayout();
@@ -208,11 +209,23 @@
             karTerpilih_dynamicLb.TabIndex = 15;
             karTerpilih_dynamicLb.Text = "belum memilih";
             // 
+            // jabatanBt
+            // 
+            jabatanBt.FlatStyle = FlatStyle.Flat;
+            jabatanBt.Location = new Point(640, 187);
+            jabatanBt.Name = "jabatanBt";
+            jabatanBt.Size = new Size(112, 23);
+            jabatanBt.TabIndex = 16;
+            jabatanBt.Text = "Kelola Jabatan";
+            jabatanBt.UseVisualStyleBackColor = true;
+            jabatanBt.Click += jabatanBt_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(jabatanBt);
             Controls.Add(karTerpilih_dynamicLb);
             Controls.Add(karTerpilih_lb);
             Controls.Add(dgvDataTable);
@@ -255,5 +268,6 @@
         private DataGridView dgvDataTable;
         private Label karTerpilih_lb;
         private Label karTerpilih_dynamicLb;
+        private Button jabatanBt;
     }
 }
