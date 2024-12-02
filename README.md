@@ -1,5 +1,8 @@
 # Responsi Junior Project - Grandiv - 2 Desember 2024
 
+# PENTING
+## **Tugas tambahan sudah dikerjakan, tetapi belum masuk screenshot PDF, bisa dicek di kode repository atau di-run**
+
 ## Identitas
 
 - Nama: Muhammad Grandiv Lava Putra
